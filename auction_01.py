@@ -10,6 +10,7 @@ import logging
 import numpy as np
 import scipy as sp
 import scipy.stats
+import matplotlib.pyplot as plt
 
 
 
@@ -30,7 +31,7 @@ class MercariProcessor(object):
 
 
 
-    def build_stats_by_category(self, data_path ='../input/mercari-price-suggestion-challenge/'):
+    def get_Data(self, data_path):
 
         train = pd.read_table(data_path + 'train.csv', sep = ',')
         test = pd.read_table(data_path + 'test.csv', sep=',')
@@ -51,17 +52,48 @@ class MercariProcessor(object):
             if i % 10000 == 0:
                 percent = 100.0 * i/float(len(test))
                 logging.info(str(percent)+"% complete")
+                
+        return train, test
 
-            category_name = str(train.loc[i, 'category_name'])
-            if category_name is None:
-                category_name = 'NaN'
+    def ExtractColumn(self,data,columnname):
+        columns = data.as_matrix(columns=[columnname])
+        return columns
 
-            price = float(train.loc[i, 'price'])
-
-
-
-
-
+    def plot_frequency_xy(x,y):
+        graph = plt.figure(figsize=(14,7))
+    
+        for j in range(2):
+            for i in range(2):
+                axis = graph.add_subplot(2,2,i*2+j+1)
+    
+                tit = ''
+                if i == 1: tit += 'log'
+                else: tit += 'lin'
+                tit += ' - '
+                if j == 1: tit += 'log'
+                else: tit += 'lin'
+    
+                axis.set_title(tit)
+                axis.set_xlabel(var_name)
+                axis.set_ylabel('Frequency')
+    
+                axis.scatter(x, y, color='blue', alpha=0.5)
+    
+                if i == 1: axis.set_xscale('log')
+                if j == 1: axis.set_yscale('log')
+    
+                plt.grid()
+    
+        plt.subplots_adjust(hspace=0.35, wspace=0.35)
+        plt.show()
+        return
+    
+    def plot_frequency(z):
+        z_aux = np.round(z/10)*10
+        x_aux, y_aux = np.unique(z_aux, return_counts=True)
+        plot_frequency_xy(x_aux, y_aux)
+        return
+    
 
 
         logging.info('stats_by_category saved')
@@ -84,9 +116,16 @@ def run_unit_tests():
 
 def build_system(data_path):
     m = MercariProcessor()
-    m.build_stats_by_category(data_path)
+    train_data, test_data = m.get_Data(data_path)
+    variable_data = m.ExtractColumn(train_data,"advertiser")
+    print(variable_data)
+    #plot_frequency(variable_data)
+    
+
+    
+    
 
 if __name__ == '__main__':
     run_unit_tests()
-    build_system('~/data/web_economics/',)
+    build_system('C:/Users/Akis-/OneDrive/Masters/Web Economics/')
 
