@@ -1,16 +1,13 @@
 import os
-from data_loader import DataLoader
-import tensorflow as tf
 import time
-import sys
-import numpy
-import matplotlib.pyplot as plt
-import tensorflow as tf
-import matplotlib.pyplot as plt
-import seaborn as sns
-#get_ipython().magic('matplotlib inline')
 
-from sklearn.datasets import load_boston
+import numpy
+import tensorflow as tf
+
+from data_loader import DataLoader
+
+
+# get_ipython().magic('matplotlib inline')
 
 
 # ref
@@ -80,14 +77,12 @@ if __name__ == '__main__':
         path = '~/data/web_economics/'
 
     m = DataLoader()
-    #m.load_file(path, 'train.csv')
-    #m.load_file(path, 'validation.csv')
+    # m.load_file(path, 'train.csv')
+    # m.load_file(path, 'validation.csv')
     m.load_file(path, 'validation.cutdown.csv')
 
-    df, new_col_names  = m.preprocess_datafram(m.get_df_copy())
+    df, new_col_names = m.preprocess_datafram(m.get_df_copy())
     feature_column_names = ['weekday', 'hour', 'region', 'city']
     feature_column_names.extend(new_col_names)
 
     train_tf(df, 'click', feature_column_names, 0.8)
-
-

@@ -1,13 +1,14 @@
-import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 import logging
-import numpy as np
 import os
-from data_loader import DataLoader
 
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
+from sklearn.model_selection import train_test_split
+
+from data_loader import DataLoader
+
+
 #
 #
 #
@@ -48,13 +49,12 @@ if __name__ == '__main__':
         path = '~/data/web_economics/'
 
     m = DataLoader()
-    #m.load_file(path, 'train.csv')
-    #m.load_file(path, 'validation.csv')
+    # m.load_file(path, 'train.csv')
+    # m.load_file(path, 'validation.csv')
     m.load_file(path, 'validation.cutdown.csv')
 
-    df, new_col_names  = m.preprocess_datafram(m.get_df_copy())
+    df, new_col_names = m.preprocess_datafram(m.get_df_copy())
     feature_column_names = ['weekday', 'hour', 'region', 'city']
     feature_column_names.extend(new_col_names)
 
     train_rf(df, 'click', feature_column_names, 0.8)
-
