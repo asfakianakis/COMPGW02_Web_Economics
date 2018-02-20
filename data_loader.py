@@ -93,6 +93,38 @@ class DataLoader(object):
         return (self.__df.copy(True))
 
 
+    # return a list of n dataframes, each is balanced, but the less frequent category is fully duplicated into each df returned
+    def get_balanced_datasets(self, df, target_column_name):
+
+        compond_set = df[target_column_name].unique()
+
+        if len(compond_set) > 2:
+            raise Exception('only supports 2 values at the moment')
+
+        df_a = df[df[target_column_name] == compond_set[0]]
+        df_b = df[df[target_column_name] == compond_set[1]]
+
+        if len(df_a) < len(df_b):
+            df_lesser = df_a
+            df_greater = df_b
+        else:
+            df_greater = df_a
+            df_lesser = df_b
+
+
+        ratio = int(1+len(df_greater)/len(df_lesser))
+        block_size = len(df_lesser)
+
+
+        dataframes = []
+        for i in range(ratio):
+            df_t = pd.concat([df_lesser,df_greater[(i*block_size):(i+1)*block_size]])
+            dataframes.append(df_t)
+
+        return(dataframes)
+
+
+
 if __name__ == '__main__':
     if os.name == 'nt':
         path = '/temp/kaggle/webeconomics/'
@@ -105,6 +137,10 @@ if __name__ == '__main__':
     # df, headers = m.preprocess_datafram()
     # m.save_data_frame(df, path, 'train.2.csv')
 
+
+    dataframes = m.get_balanced_datasets(m.get_df_copy(), 'click')
+    print(len(dataframes))
+
     # m.train_rf('bidprice')
     # m.train_rf('payprice')
-    m.train_rf('click')
+    #m.train_rf('click')

@@ -6,27 +6,8 @@ import tensorflow as tf
 
 from data_loader import DataLoader
 
-
-# get_ipython().magic('matplotlib inline')
-
-
 # ref
 #  https://stackoverflow.com/questions/45262280/multiple-regression-on-tensorflow
-
-
-
-#
-#
-# Load data
-#
-#
-
-#
-# n_samples = train_X.shape[0]
-
-
-
-
 
 def train_tf(df, target_column_name, feature_column_names, param1):
     t1 = time.time()
@@ -37,7 +18,8 @@ def train_tf(df, target_column_name, feature_column_names, param1):
 
     # Parameters
     learning_rate = 1e-5
-    training_epochs = 10000
+    training_epochs = 1e9
+    halt_delta = 1e-5
 
     X_data = df[feature_column_names].as_matrix()
     y_data = df[target_column_name].as_matrix()
@@ -62,12 +44,26 @@ def train_tf(df, target_column_name, feature_column_names, param1):
         init = tf.global_variables_initializer()
         sess.run(init)
         vals = []
-        for i in range(training_epochs):
+        i = 0
+        keep_running = True
+        while keep_running:
             val = sess.run([train, loss], feed_dict={X: X_data, y: y_data[:, None]})
-            vals.append(val)
-            print(val)
+            if len(vals) > 0:
+                t = vals[len(vals)-1]
+                d = t - val[1]
+                print(d)
+                if d < halt_delta:
+                    keep_running = False
 
-    print(vals)
+
+            vals.append(val[1])
+            i += 1
+            if i > training_epochs:
+                keep_running = False
+        print(val[-1], d, i)
+
+
+
 
 
 if __name__ == '__main__':
@@ -77,11 +73,15 @@ if __name__ == '__main__':
         path = '~/data/web_economics/'
 
     m = DataLoader()
-    # m.load_file(path, 'train.csv')
+    m.load_file(path, 'train.csv')
     # m.load_file(path, 'validation.csv')
-    m.load_file(path, 'validation.cutdown.csv')
+    # m.load_file(path, 'validation.cutdown.csv')
 
-    df, new_col_names = m.preprocess_datafram(m.get_df_copy())
+    dataframes = m.get_balanced_datasets(m.get_df_copy(), 'click')
+    print(len(dataframes))
+
+
+    df, new_col_names = m.preprocess_datafram(dataframes[0])
     feature_column_names = ['weekday', 'hour', 'region', 'city']
     feature_column_names.extend(new_col_names)
 
