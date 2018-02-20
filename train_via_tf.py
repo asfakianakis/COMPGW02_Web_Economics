@@ -1,5 +1,5 @@
 import os
-from load_data import DataLoader
+from data_loader import DataLoader
 import tensorflow as tf
 import time
 import sys
