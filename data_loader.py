@@ -3,16 +3,12 @@ import logging
 import numpy as np
 import os
 
-
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 
 class DataLoader(object):
-    # based on:
-    #  http://dataaspirant.com/2017/06/26/random-forest-classifier-python-scikit-learn/
-    #
 
     __df = None  # data frame of loaded data
     __train_percentage = 0.8
@@ -36,8 +32,6 @@ class DataLoader(object):
             nf = column_name + '_' + v
             df.loc[df[column_name] == v, [nf]] = 1
         return(df,new_columns)
-
-
 
     # split out a single collumn into mutiple new columns, that only take the value of 0 or 1.
     # will split fields if needed so 'cat,dog,5' becomes 3 new columns 'x_cat, x_dog, x_5'
@@ -86,9 +80,7 @@ class DataLoader(object):
         logging.info('saving df as '+filename)
         df.to_csv(data_path + filename, sep=',', index=False)
 
-    def preprocess_datafram(self):
-        df = self.__df.copy(True)
-
+    def preprocess_datafram(self, df):
         # replace any Na values
         df.loc[df['slotformat'] == 'Na', ['slotformat']] = 0
         # break out many value columns into many boolean values columns
@@ -102,40 +94,6 @@ class DataLoader(object):
         df, new_columns = self.split_out_column(df,'slotvisibility')
         headers.extend(new_columns)
         return df, headers
-
-
-    #
-    # TODO move this into another file
-    #
-    #
-    def train_rf(self, target_column_name):
-        # good target values are : click, bidprice, payprice
-
-        # full list of fields is:
-        #  click,weekday,hour,bidid,userid,useragent,IP,region,city,adexchange,domain,url,urlid,slotid,slotwidth,slotheight,slotvisibility, slotformat,slotprice,creative,bidprice,payprice,keypage,advertiser,usertag
-
-        df, new_col_names = self.preprocess_datafram()
-
-        feature_headers = ['weekday', 'hour', 'region', 'city' ]
-        feature_headers.extend(new_col_names)
-
-        print(list(df.columns.values))
-        # Split dataset into train and test dataset
-        train_x, test_x, train_y, test_y = train_test_split(df[feature_headers], df[target_column_name],
-                                                            test_size=1.0-self.__train_percentage, train_size=self.__train_percentage)
-        clf = RandomForestClassifier()
-        clf.fit(train_x, train_y)
-        print('train ',len(train_x))
-        print(list(train_x.columns.values))
-        print('test ',len(test_x))
-        print(list(test_x.columns.values))
-        predictions = clf.predict(test_x)
-
-        print("Train Accuracy :: ", accuracy_score(train_y, clf.predict(train_x)))
-        print("Test Accuracy  :: ", accuracy_score(test_y, predictions))
-        print(" Confusion matrix ", confusion_matrix(test_y, predictions))
-
-        logging.info('trained')
 
     def get_df_copy(self):
         return(self.__df.copy(True))

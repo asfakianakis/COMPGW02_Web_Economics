@@ -53,7 +53,7 @@ else:
 
 m = DataLoader()
 m.load_file(path, 'validation.cutdown.csv')
-df, headers = m.preprocess_datafram()
+df, headers = m.preprocess_datafram(m.get_df_copy())
 X_data = df[headers].as_matrix()
 y_data = df['bidprice'].as_matrix()
 
