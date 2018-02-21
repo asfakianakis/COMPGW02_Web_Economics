@@ -59,7 +59,7 @@ class MercariProcessor(object):
         columns = data.as_matrix(columns=[columnname])
         return columns
 
-    def plot_frequency_xy(x,y):
+    def plot_frequency_xy(x, y, var_name):
         graph = plt.figure(figsize=(14,7))
     
         for j in range(2):
@@ -88,15 +88,11 @@ class MercariProcessor(object):
         plt.show()
         return
     
-    def plot_frequency(z):
+    def plot_frequency(self, z):
         z_aux = np.round(z/10)*10
         x_aux, y_aux = np.unique(z_aux, return_counts=True)
-        plot_frequency_xy(x_aux, y_aux)
+        self.plot_frequency_xy(x_aux, y_aux)
         return
-    
-
-
-        logging.info('stats_by_category saved')
 
     def load_model(self, path):
         logging.info('loading '+path+"dict.pickle")
@@ -120,10 +116,6 @@ def build_system(data_path):
     variable_data = m.ExtractColumn(train_data,"advertiser")
     print(variable_data)
     #plot_frequency(variable_data)
-    
-
-    
-    
 
 if __name__ == '__main__':
     run_unit_tests()
