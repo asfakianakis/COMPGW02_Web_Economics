@@ -48,6 +48,7 @@ class DataLoader(object):
                     temp_token_set.add(t)
             token_set = temp_token_set
         logging.info('%d tokens will be converted into new columns : %s ', len(token_set), str(token_set))
+        logging.info('Estimated time %d seconds == %f minutes ', len(token_set)*8 , len(token_set)*8/60.0)
 
         # add the new columns
         for v in token_set:
@@ -65,6 +66,7 @@ class DataLoader(object):
     def load_file(self, data_path, filename):
         #    click,weekday,hour,bidid,userid,useragent,IP,region,city,adexchange,domain,url,urlid,slotid,slotwidth,slotheight,slotvisibility,
         # slotformat,slotprice,creative,bidprice,payprice,keypage,advertiser,usertag
+        logging.info('Loading '+data_path+filename)
         self.__df = pd.read_table(data_path + filename, sep=',')
         logging.info('file  loaded')
 
@@ -75,8 +77,10 @@ class DataLoader(object):
         df.to_csv(data_path + filename, sep=',', index=False)
 
     def preprocess_datafram(self, df):
+        #TODO in validation the check with Na fails - so it is not a string - add a type check.
         # replace any Na values
-        df.loc[df['slotformat'] == 'Na', ['slotformat']] = 0
+        #if 'slotformat' in df.columns:
+        #    df.loc[df['slotformat'] == 'Na', ['slotformat']] = 0
         # break out many value columns into many boolean values columns
         headers = []
         df, new_columns = self.split_out_compond_column(df, 'useragent', separator='_')
@@ -132,15 +136,14 @@ if __name__ == '__main__':
         path = '~/data/web_economics/'
 
     m = DataLoader()
-    m.load_file(path, 'train.csv')
+    # m.load_file(path, 'train.csv')
+    m.load_file(path, 'test.csv')
+    df, headers = m.preprocess_datafram(m.get_df_copy())
+    m.save_data_frame(df, path, 'test.2.csv')
 
-    # df, headers = m.preprocess_datafram()
-    # m.save_data_frame(df, path, 'train.2.csv')
 
-
-    dataframes = m.get_balanced_datasets(m.get_df_copy(), 'click')
-    print(len(dataframes))
-
+    # dataframes = m.get_balanced_datasets(m.get_df_copy(), 'click')
+    # print(len(dataframes))
     # m.train_rf('bidprice')
     # m.train_rf('payprice')
     #m.train_rf('click')
