@@ -23,22 +23,28 @@ class Scorer(object):
                     m2 = x
         return m2 if count >= 2 else None
 
-    def set_df(self,df,column_names, budget):
+    def set_df(self,df,column_names, budget, reserve):
 
         balances = np.ones(len(column_names)) * budget
 
         df_t = df[column_names]
-        df['winner'] = np.argmax(df_t.values, axis=1)
+        df['winner'] = -1
         df['price'] = 0
         logging.info('calculating price paid (second highest). This takes some time...')
         for i in range(len(df)):
-            df.loc[i, 'price'] = self.second_largest(df_t.loc[i].values)
+            prices = df_t.loc[i].values
+            valid1 = balances > prices
+            valid2 = prices > 0.0
+            valid3 = valid1 * valid2
+            new_prices = valid3 * prices
+            winner = np.argmax(new_prices)
+            price = self.second_largest(new_prices)
+            price = np.max([reserve,price])
+            df.loc[i, 'price'] = price
+            df.loc[i, 'winner'] = winner
+            balances[winner] -= price
 
-            #np.argmax(df_t.values, axis=1)
-
-
-
-            if i % 5000 == 0:
+            if i % 50 == 0:
                 logging.info('%f complete',(float(i)/len(df)))
 
         logging.info('calculating wins by team')
@@ -46,10 +52,10 @@ class Scorer(object):
 
         teams = df.winner.unique()
         for team in teams:
-            logging.info('calculating for team '+str(team))
+
             t = df.loc[df['winner'] == team]
             clicks = np.sum(t['click'].values)
-            logging.info('wins : team ' + str(team) + ' ' + str(wins_by_team[team]) + ' clicks ' + str(clicks))
+            logging.info('team ' + str(team) + ' wins:' + str(wins_by_team[team]) + ' clicks:' + str(clicks))
 
         print(df.head())
 
@@ -77,16 +83,16 @@ if __name__ == '__main__':
     #print(df.head())
     df_t = df[['click']].copy(True)
 
-    # df_t['bidTeam3'] = np.random.randint(227, 230, df_t.shape[0])
-    # df_t['bidTeam2'] = np.ones(df_t.shape[0]) * 228
-    # df_t['bidTeam1'] = np.random.randint(297, 301, df_t.shape[0])
+    df_t['bidTeam1'] = np.random.randint(227, 230, df_t.shape[0])
+    df_t['bidTeam2'] = np.ones(df_t.shape[0]) * 278
+    df_t['bidTeam3'] = np.random.randint(297, 301, df_t.shape[0])
 
-    df_t['bidTeam3'] = 3
-    df_t['bidTeam2'] = 2
-    df_t['bidTeam1'] = 1
+    # df_t['bidTeam3'] = 3
+    # df_t['bidTeam2'] = 2
+    # df_t['bidTeam1'] = 1
 
     s = Scorer()
-    s.set_df(df_t,['bidTeam1','bidTeam2','bidTeam3'])
+    s.set_df(df_t,['bidTeam1','bidTeam2','bidTeam3'],300, 227)
 
 
 
