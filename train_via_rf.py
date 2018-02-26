@@ -113,7 +113,7 @@ if __name__ == '__main__':
     expand_train_dataset_columns = False
     validation_filename = 'validation.2.csv'
     expand_validation_dataset_columns = False
-    max_number_of_datasets = 100
+    max_number_of_datasets = 1354
     build_models = False
 
 
