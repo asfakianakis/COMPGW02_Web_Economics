@@ -71,9 +71,9 @@ if __name__ == '__main__':
     logging.info('starting train_via_rf.py')
 
     target_col_name = 'click'
-    #train_filename = 'train.csv'
+    train_filename = 'validation.csv'
 
-    train_filename = 'train.cutdown.csv'
+    #train_filename = 'train.cutdown.csv'
 
     logging.info('loading DF '+train_filename)
     train_dl = DataLoader()
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     # df_t['bidTeam1'] = 1
 
     s = Scorer()
-    s.set_df(df_t,['bidTeam1','bidTeam2','bidTeam3'],300, 227)
+    s.set_df(df_t,['bidTeam1','bidTeam2','bidTeam3'],6250000, 227)
 
 
 
