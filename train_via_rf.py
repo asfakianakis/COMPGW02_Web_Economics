@@ -14,7 +14,7 @@ from data_loader import DataLoader
 #
 #
 #
-def train_rf(df, target_column_name, feature_column_names, train_percentage, categorical, n_trees=10):
+def train_rf(df, target_column_name, feature_column_names, train_percentage, categorical, n_trees=10, max_features=None, max_depth=None):
     # based on:
     #  http://dataaspirant.com/2017/06/26/random-forest-classifier-python-scikit-learn/
     #
@@ -29,9 +29,9 @@ def train_rf(df, target_column_name, feature_column_names, train_percentage, cat
                                                         test_size=1.0 - train_percentage,
                                                         train_size=train_percentage)
     if (categorical):
-        clf = RandomForestClassifier(oob_score=True, n_estimators=n_trees)
+        clf = RandomForestClassifier(oob_score=True, n_estimators=n_trees, max_features = max_features, max_depth = max_depth)
     else:
-        clf = RandomForestRegressor(oob_score=True, n_estimators=n_trees)
+        clf = RandomForestRegressor(oob_score=True, n_estimators=n_trees, max_features = max_features, max_depth = max_depth)
 
     clf.fit(train_x, train_y)
     logging.info('training size %d ', len(train_x))
@@ -73,6 +73,13 @@ def predict(model_list, df, feature_column_names, target_column_name = None):
         calc_confusion_matrix_binary(data_y, net_predictions)
 
 
+    df['pCTR'] = net_predictions
+
+
+    return (df)
+
+
+
 
 
 def load_model(path, filename):
@@ -109,37 +116,61 @@ if __name__ == '__main__':
     logging.info('starting train_via_rf.py')
 
     target_col_name = 'click'
-    train_filename = 'train.2.csv'
+    train_filename = 'split_out_from/train_dummy.csv'
+    load_pre_slipt_out_data_sets = True
+
     expand_train_dataset_columns = False
-    validation_filename = 'validation.2.csv'
+    validation_filename = 'split_out_from/validation_dummy.csv'
     expand_validation_dataset_columns = False
-    max_number_of_datasets = 1354
-    build_models = False
-
-
+    max_number_of_datasets = 10 # 1354
+    build_models = True  # Took maybe 5 hours to load Achilleas' train and validation sets and train 1300 RFs on them
+    save_predictions = False
+    save_split_datafroms = False
 
     model_list = []
     if build_models:
         logging.info('building RF')
-        train_dl = DataLoader()
-        train_dl.load_file(path, train_filename)
-        dataframes = train_dl.get_balanced_datasets(train_dl.get_df_copy(), target_col_name)
+        if load_pre_slipt_out_data_sets:
+            dataframes = []
+            train_dl = DataLoader()
+            for i in range(10):
+                filename = train_filename + '.split.'+str(i)+'csv'
+                train_dl.load_file(path, filename)
+                dataframes.append(train_dl.get_df_copy())
+        else:
+            train_dl = DataLoader()
+            train_dl.load_file(path, train_filename, save_df_as_pickle_file=False)
+            dataframes = train_dl.get_balanced_datasets(train_dl.get_df_copy(), target_col_name, max_number_of_datasets)
         logging.info('Split into %d dataframes ', len(dataframes))
+        if save_split_datafroms:
+            i = 0
+            for df in dataframes:
+                df.to_csv(path + train_filename + '.split.'+str(i)+'csv')
+                i += 1
+
         c = 0
         for df in dataframes:
             if (expand_train_dataset_columns):
                 df, new_col_names = train_dl.preprocess_datafram(dataframes[0])
                 feature_column_names = ['weekday', 'hour', 'region', 'city']
                 feature_column_names.extend(new_col_names)
+                #remove columns info could leak from
+                feature_column_names = list(filter(lambda a: a != 'click', feature_column_names))
+                feature_column_names = list(filter(lambda a: a != 'payprice', feature_column_names))
+                feature_column_names = list(filter(lambda a: a != 'bidprice', feature_column_names))
             else:
                 feature_column_names = list(df.select_dtypes(include=[np.number]).columns.values) # get only numeric columns
                 feature_column_names = list(filter(lambda a: a != 'useragent', feature_column_names))
                 feature_column_names = list(filter(lambda a: a != 'usertag', feature_column_names))
                 feature_column_names = list(filter(lambda a: a != 'slotid', feature_column_names))
                 feature_column_names = list(filter(lambda a: a != 'slotvisibility', feature_column_names))
+                #remove columns info could leak from
+                feature_column_names = list(filter(lambda a: a != 'click', feature_column_names))
+                feature_column_names = list(filter(lambda a: a != 'payprice', feature_column_names))
+                feature_column_names = list(filter(lambda a: a != 'bidprice', feature_column_names))
             save_model(feature_column_names, path, 'feature_colum_names_'+str(c)+'.pickle')
             save_model(target_col_name, path, 'target_colum_name_'+str(c)+'.pickle')
-            model = train_rf(df, target_col_name, feature_column_names, 0.8, True)
+            model = train_rf(df, target_col_name, feature_column_names, 0.8, True, max_depth=50, n_trees=900, max_features = 50 )
             save_model(model,path,'rf_model_'+target_col_name+'_'+str(c)+'.pickle')
             model_list.append(model)
             c += 1
@@ -170,7 +201,14 @@ if __name__ == '__main__':
     else:
         logging.info('columns OK')
 
-    predict(model_list, val_df, feature_column_names, target_col_name)
+    df = predict(model_list, val_df, feature_column_names, target_col_name)
+
+    if save_predictions:
+        save_model(df, path, target_col_name+'_predictions' + '.pickle')
+        df.to_csv(path+target_col_name+'_predictions.csv', sep=',', index = False)
+        df2 = df['bidid','pCTR']
+        df2.to_csv(path+target_col_name+'_predictions_cutdown.csv', sep=',', index = False)
+
 
 
 
