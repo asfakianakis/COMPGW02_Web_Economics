@@ -69,7 +69,7 @@ class Scorer(object):
         df_summary = pd.DataFrame({"team_name": team_names, "win": team_wins, "click": team_clicks})
         return(df_summary,df)
 
-
+'''
 if __name__ == '__main__':
 
     if os.name == 'nt':
@@ -99,6 +99,6 @@ if __name__ == '__main__':
     df_summary, df_full = s.set_df(df_t,['bidTeam1','bidTeam2','bidTeam3'],270000000, 227)
 
     print(df_summary.head())
-
+'''
 
 
