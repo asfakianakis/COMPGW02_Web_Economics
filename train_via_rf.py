@@ -109,6 +109,7 @@ if __name__ == '__main__':
 
     if os.name == 'nt':
         path = '/temp/kaggle/webeconomics/'
+        path = '/temp/kaggle/webeconomics/split_out_from/'
     else:
         path = '~/data/web_economics/'
 
@@ -116,16 +117,17 @@ if __name__ == '__main__':
     logging.info('starting train_via_rf.py')
 
     target_col_name = 'click'
-    train_filename = 'split_out_from/train_dummy.csv'
+    train_filename = 'train_dummy.csv'
     load_pre_slipt_out_data_sets = True
 
     expand_train_dataset_columns = False
-    validation_filename = 'split_out_from/validation_dummy.csv'
+    validation_filename = 'train_dummy.csv.with.bidid.A.csv'
     expand_validation_dataset_columns = False
     max_number_of_datasets = 10 # 1354
     build_models = True  # Took maybe 5 hours to load Achilleas' train and validation sets and train 1300 RFs on them
     save_predictions = False
     save_split_datafroms = False
+    save_rfs = True
 
     model_list = []
     if build_models:
@@ -171,7 +173,8 @@ if __name__ == '__main__':
             save_model(feature_column_names, path, 'feature_colum_names_'+str(c)+'.pickle')
             save_model(target_col_name, path, 'target_colum_name_'+str(c)+'.pickle')
             model = train_rf(df, target_col_name, feature_column_names, 0.8, True, max_depth=50, n_trees=900, max_features = 50 )
-            save_model(model,path,'rf_model_'+target_col_name+'_'+str(c)+'.pickle')
+            if save_rfs:
+                save_model(model,path,'rf_model_'+target_col_name+'_'+str(c)+'.pickle')
             model_list.append(model)
             c += 1
             if c > max_number_of_datasets:
@@ -195,7 +198,7 @@ if __name__ == '__main__':
 
     missing = set(feature_column_names) - set(val_df.columns.values)
     if (len(missing)>0):
-        logging.info('We are missing the following columns:'+str(missing))
+        logging.info('We are missing the following columns:'+str(missing)+ ' they will be added to the dataset (and set to 0.0)')
         for c in missing:
             val_df[c] = 0.0 # TODO this is a hack?, i.e. setting slotid_PIC to 0? hmm, it would have been anyway
     else:
