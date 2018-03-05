@@ -13,7 +13,10 @@ from sklearn.model_selection import train_test_split
 
 from data_loader import DataLoader
 
-if __name__ == '__main__':
+
+
+
+def add_bidid_to_df():
     if os.name == 'nt':
         path = '/temp/kaggle/webeconomics/'
     else:
@@ -43,3 +46,48 @@ if __name__ == '__main__':
 
     #print('average pay price:'+str(np.mean(df['payprice'])))
     #print('average bid price:'+str(np.mean(df['bidprice'])))
+
+
+def check_bid_id_on_2_dataframes():
+    if os.name == 'nt':
+        path = '/temp/kaggle/webeconomics/'
+    else:
+        path = '~/Downloads/'
+
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+    logging.info('starting ')
+
+    train_filename1 = 'click_predictions_narrow.csv'
+    #train_filename2 = 'elasticnet_basebid.csv'
+    train_filename2 = 'rf_pCTR.csv'
+
+    train_dl1 = DataLoader()
+    train_dl1.load_file(path, train_filename1)
+    df = train_dl1.get_df_copy()
+    train_dl1 = None
+    gc.collect()
+
+
+    train_dl2 = DataLoader()
+    train_dl2.load_file(path, train_filename2)
+    df2 = train_dl2.get_df_copy()
+    train_dl2 = None
+    gc.collect()
+
+    df2.columns = df2.columns+'_d1'
+
+    for x in df.columns.values:
+        df2[x] = df[x]
+
+    print(df2.head())
+
+    x1 = df2['bidid_d1'] == df2['bidid']
+    print(sum(x1))
+
+
+    df3 = df2[['pCTR','click_proba_d1']]
+    print(df3.corr())
+
+
+if __name__ == '__main__':
+    check_bid_id_on_2_dataframes()
