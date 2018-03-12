@@ -55,6 +55,7 @@ class Scorer(object):
         team_names = []
         team_wins = []
         team_clicks = []
+        team_budgets = []
         for team_index in teams:
             if team_index >= 0:
                 temp_df = df.loc[df['winner'] == team_index]
@@ -63,10 +64,11 @@ class Scorer(object):
                 team_names.append(team_name)
                 team_wins.append(wins_by_team[team_index])
                 team_clicks.append(clicks)
+                team_budgets.append(balances[team_index])
 
                 logging.info(
-                    'team ' + team_name + ' ' + str(team_index) + ' wins:' + str(wins_by_team[team_index]) + ' clicks:' + str(clicks))
-        df_summary = pd.DataFrame({"team_name": team_names, "win": team_wins, "click": team_clicks})
+                    'team ' + team_name + ' ' + str(team_index) + ' wins:' + str(wins_by_team[team_index]) + ' clicks:' + str(clicks)+ ' budgets:' + str(balances[team_index]))
+        df_summary = pd.DataFrame({"team_name": team_names, "win": team_wins, "click": team_clicks, "budget": team_budgets})
         return(df_summary,df)
 
 '''
