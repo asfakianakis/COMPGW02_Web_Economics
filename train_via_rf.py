@@ -59,23 +59,20 @@ def predict(model_list, df, feature_column_names, target_column_name = None):
         predictions_list.append(predictions)
     logging.info('Predictions complete')
     net_predictions = np.zeros(len(df))
+    avg_predictions = np.zeros(len(df))
+    #method 1
+    logging.info('method 1 started')
+    sum_predictions = np.zeros(len(df))
+    for j in range(len(predictions_list)):
+        sum_predictions +=  predictions_list[j]
+    avg_predictions = sum_predictions /len(predictions_list)
+    net_predictions = avg_predictions > 0.5
+    logging.info('method 1 complete')
     if not data_y is None:
-        #method 1
-        logging.info('method 1 started')
-        sum_predictions = np.zeros(len(df))
-        for j in range(len(predictions_list)):
-            sum_predictions +=  predictions_list[j]
-        sum_predictions /= len(predictions_list)
-        net_predictions = sum_predictions > 0.5
-        logging.info('method 1 complete')
         accuracy = np.sum(net_predictions == data_y) / float(len(data_y))
         print('accuracy %f', accuracy)
         calc_confusion_matrix_binary(data_y, net_predictions)
-
-
-    df['pCTR'] = net_predictions
-
-
+    df['pCTR'] = avg_predictions
     return (df)
 
 
@@ -118,14 +115,17 @@ if __name__ == '__main__':
 
     target_col_name = 'click'
     train_filename = 'train_dummy.csv'
-    load_pre_slipt_out_data_sets = True
 
     expand_train_dataset_columns = False
-    validation_filename = 'train_dummy.csv.with.bidid.A.csv'
+    #validation_filename = 'train_dummy.csv.with.bidid.A.csv'
+    #validation_filename = 'validation_dummy.csv.with.bidid.csv'
+    validation_filename = 'test_dummy.csv.with.bidid.csv'
     expand_validation_dataset_columns = False
     max_number_of_datasets = 10 # 1354
-    build_models = True  # Took maybe 5 hours to load Achilleas' train and validation sets and train 1300 RFs on them
-    save_predictions = False
+    build_models = False  # Took maybe 5 hours to load Achilleas' train and validation sets and train 1300 RFs on them
+    load_pre_slipt_out_data_sets = True
+
+    save_predictions = True
     save_split_datafroms = False
     save_rfs = True
 
@@ -160,12 +160,16 @@ if __name__ == '__main__':
                 feature_column_names = list(filter(lambda a: a != 'click', feature_column_names))
                 feature_column_names = list(filter(lambda a: a != 'payprice', feature_column_names))
                 feature_column_names = list(filter(lambda a: a != 'bidprice', feature_column_names))
+                feature_column_names = list(filter(lambda a: a != 'Unnamed: 0', feature_column_names))
+                feature_column_names = list(filter(lambda a: a != 'Unnamed: 0.1', feature_column_names))
             else:
                 feature_column_names = list(df.select_dtypes(include=[np.number]).columns.values) # get only numeric columns
                 feature_column_names = list(filter(lambda a: a != 'useragent', feature_column_names))
                 feature_column_names = list(filter(lambda a: a != 'usertag', feature_column_names))
                 feature_column_names = list(filter(lambda a: a != 'slotid', feature_column_names))
                 feature_column_names = list(filter(lambda a: a != 'slotvisibility', feature_column_names))
+                feature_column_names = list(filter(lambda a: a != 'Unnamed: 0', feature_column_names))
+                feature_column_names = list(filter(lambda a: a != 'Unnamed: 0.1', feature_column_names))
                 #remove columns info could leak from
                 feature_column_names = list(filter(lambda a: a != 'click', feature_column_names))
                 feature_column_names = list(filter(lambda a: a != 'payprice', feature_column_names))
@@ -190,12 +194,13 @@ if __name__ == '__main__':
                 model = load_model(path,fname)
                 model_list.append(model)
 
+    print('we will predict using:',feature_column_names)
+
     validation_dl = DataLoader()
     validation_dl.load_file(path, validation_filename)
     val_df = validation_dl.get_df_copy()
     if expand_validation_dataset_columns:
         val_df, new_col_names = validation_dl.preprocess_datafram(val_df)
-
     missing = set(feature_column_names) - set(val_df.columns.values)
     if (len(missing)>0):
         logging.info('We are missing the following columns:'+str(missing)+ ' they will be added to the dataset (and set to 0.0)')
@@ -209,8 +214,8 @@ if __name__ == '__main__':
     if save_predictions:
         save_model(df, path, target_col_name+'_predictions' + '.pickle')
         df.to_csv(path+target_col_name+'_predictions.csv', sep=',', index = False)
-        df2 = df['bidid','pCTR']
-        df2.to_csv(path+target_col_name+'_predictions_cutdown.csv', sep=',', index = False)
+        df2 = df[['bidid','pCTR']]
+        df2.to_csv(path+validation_filename+'.'+target_col_name+'_predictions_narrow.csv', sep=',', index = False)
 
 
 
