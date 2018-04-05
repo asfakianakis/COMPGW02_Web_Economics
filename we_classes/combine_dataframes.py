@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from data_loader import DataLoader
+from we_classes.data_loader import DataLoader
 
 
 

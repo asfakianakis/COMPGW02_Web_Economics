@@ -4,7 +4,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from data_loader import DataLoader
+from we_classes.data_loader import DataLoader
 
 class Scorer(object):
 

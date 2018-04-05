@@ -4,7 +4,7 @@ import time
 import numpy
 import tensorflow as tf
 
-from data_loader import DataLoader
+from we_classes.data_loader import DataLoader
 
 # ref
 #  https://stackoverflow.com/questions/45262280/multiple-regression-on-tensorflow
