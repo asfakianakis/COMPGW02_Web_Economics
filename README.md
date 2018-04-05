@@ -1,4 +1,25 @@
-# COMPGW02_Web_Economics
+### COMPGW02/COMPM041 Web Economics Optimal bidding on the iPinYou dataset
+
+* Achilleas Sfakianakis
+* Akis Thomas
+* Dwane van der Sluis
+
+This github repo complements individual and group reports for UCL COMPGW02 Web Economics
+
+The papers describes solutions to the online real-time advertising bidding problem, where the amount to
+bid for each advertising impression is optimised.
+
+Repo Layout
+
+Most of the code is inside jupiter notebooks. Some code for splitting loading
+
+Achilleas
+Aggy
+Dwane
+we_classes - utilities to be used in notebooks.
+
+old_code - holds old no longer used code
+Bids placed - 
 
 
 Code is in github: https://github.com/DwanevanderSluis/COMPGW02_Web_Economics.git
