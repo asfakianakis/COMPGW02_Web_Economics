@@ -1,5 +1,7 @@
 import logging
 import os
+import pickle
+import gc
 
 import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 
@@ -63,12 +65,20 @@ class DataLoader(object):
             df.loc[df[column_name].str.endswith(separator + v), [nf]] = 1
         return (df, new_columns)
 
-    def load_file(self, data_path, filename):
+    def load_file(self, data_path, filename, save_df_as_pickle_file = False):
         #    click,weekday,hour,bidid,userid,useragent,IP,region,city,adexchange,domain,url,urlid,slotid,slotwidth,slotheight,slotvisibility,
         # slotformat,slotprice,creative,bidprice,payprice,keypage,advertiser,usertag
         logging.info('Loading '+data_path+filename)
         self.__df = pd.read_table(data_path + filename, sep=',')
         logging.info('file  loaded')
+
+        if save_df_as_pickle_file:
+            logging.info('saving as pickle file')
+            pickle_out = open(data_path + filename+'.as.pickle', "wb")
+            pickle.dump(self.__df, pickle_out)
+            pickle_out.close()
+            logging.info('pickle file saved')
+
 
         # weekday, hour, bidid, userid, useragent, IP, region, city, adexchange, domain, url, urlid, slotid, slotwidth, slotheight, slotvisibility, slotformat, slotprice, creative, bidprice, payprice, keypage, advertiser, usertag
 
@@ -94,11 +104,13 @@ class DataLoader(object):
         return df, headers
 
     def get_df_copy(self):
+        gc.collect()
         return (self.__df.copy(True))
 
 
     # return a list of n dataframes, each is balanced, but the less frequent category is fully duplicated into each df returned
-    def get_balanced_datasets(self, df, target_column_name):
+    def get_balanced_datasets(self, df, target_column_name, maximum_splits = 2000):
+        logging.info('splitting into balanced datasets ')
 
         compond_set = df[target_column_name].unique()
 
@@ -119,12 +131,17 @@ class DataLoader(object):
         ratio = int(1+len(df_greater)/len(df_lesser))
         block_size = len(df_lesser)
 
+        if ratio <= 2.0:
+            return ([df])
 
         dataframes = []
         for i in range(ratio):
             df_t = pd.concat([df_lesser,df_greater[(i*block_size):(i+1)*block_size]])
             dataframes.append(df_t)
+            if i >= maximum_splits:
+                break
 
+        logging.info('split complete ')
         return(dataframes)
 
 

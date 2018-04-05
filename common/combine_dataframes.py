@@ -11,8 +11,32 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from we_classes.data_loader import DataLoader
+from common.data_loader import DataLoader
 
+def add_bidid_to_test_df():
+    if os.name == 'nt':
+        path = '/temp/kaggle/webeconomics/'
+    else:
+        path = '~/data/web_economics/'
+
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+    logging.info('starting ')
+
+    train_filename1 = 'split_out_from/test_dummy.csv'
+    train_filename2 = 'test.csv'
+
+    train_dl1 = DataLoader()
+    train_dl1.load_file(path, train_filename1)
+    df = train_dl1.get_df_copy()
+    train_dl1 = None
+    gc.collect()
+
+    train_dl2 = DataLoader()
+    train_dl2.load_file(path, train_filename2)
+    df['bidid'] = train_dl2.get_df_copy()['bidid']
+    train_dl2 = None
+    gc.collect()
+    df.to_csv(path+train_filename1+'.with.bidid.csv', sep=',', index = False)
 
 
 
@@ -90,4 +114,4 @@ def check_bid_id_on_2_dataframes():
 
 
 if __name__ == '__main__':
-    check_bid_id_on_2_dataframes()
+    add_bidid_to_test_df()
