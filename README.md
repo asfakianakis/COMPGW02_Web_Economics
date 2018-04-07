@@ -1,4 +1,4 @@
-# COMPGW02 Web Economics - Real-Time-Bidding (RTB) on the iPinYou dataset
+# COMPGW02 Web Economics - Real-Time-Bidding (RTB) on the iPinYou dataset (Group 21)
 This repository contains the source code, group and individual reports for the Group Project of "COMPGW02 Web Economics" course for UCL's MSc in Business Analytics (academic year 2017-2018).
 
 
