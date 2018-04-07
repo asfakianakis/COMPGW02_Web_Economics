@@ -3,9 +3,9 @@ This repository contains the source code, group and individual reports for the G
 
 
 ## Group Members
-* [Achilleas Sfakianakis] (https://github.com/asfakianakis)
-* [Akis Thomas] (https://github.com/akisthomas)
-* [Dwane van der Sluis] (https://github.com/DwanevanderSluis)
+* [Achilleas Sfakianakis](https://github.com/asfakianakis)
+* [Akis Thomas](https://github.com/akisthomas)
+* [Dwane van der Sluis](https://github.com/DwanevanderSluis)
 
 ## Description
 In this project, we worked on an online advertising problem. We helped advertisers to form a bidding strategy in order to place their ads online in a real-
