@@ -9,9 +9,17 @@ This repository contains the source code, group and individual reports for the G
 
 ## Description
 In this project, we worked on an online advertising problem. We helped advertisers to form a bidding strategy in order to place their ads online in a real-
-time bidding (RTB) system. RTB mechanism to buy and sell ads is the most significant evolution in recent years in display and mobile advertising.  
-RTB essentially facilitates buying an individual ad impression in real time, automatically triggered by a user's visit.
-Although other types of auctions, such as the first price auction, are also popular, RTB exchanges typically employ the second price auction model.
+time bidding (RTB) system. RTB mechanism to buy and sell ads is the most significant evolution in recent years in display and mobile advertising. RTB essentially facilitates 
+buying an individual ad impression in real time, automatically triggered by a user's visit. Although other types of auctions, such as the first price auction, are also popular, RTB exchanges typically employ the second price auction model.
+For this project we used the iPinYou dataset. This dataset was released by the iPinYou Information Technologies Co., Ltd (iPinYou), which was founded in 2008 and is currently 
+the largest DSP in China. The dataset includes logs of ad auctions, bids, impressions, clicks, and final conversions.
+
+## Results
+Our best performing model was an ensemble model of an XGBoost model and a "Multi - Random Forest" model combined with a linear bidding strategy. The "Multi - Random Forest" model
+accounted for the very large size of the training set (~2.4M) and the extreme class imbalance (only 1793 clicks, CTR ~0.07%) by training multiple Random Forest classifiers on
+different subsets of the training set (each subset contained all clicks plus 1800 non-clicks). Model performed a noteworthy performance on the validation set buying 165 clicks (out of
+202 total clicks) with an impressive CTR of 0.22%. Performance was also evaluated in a "Multi-Agent" real-time environment where the 31 group teams of the course where competing 
+against each other to win auctions on the test set. Until the last day of the final submission, our team managed to rank on the __1st__ position, getting 41 clicks.
 
 ## Repository Structure
 
