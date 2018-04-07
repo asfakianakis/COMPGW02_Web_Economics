@@ -1,14 +1,17 @@
-### COMPGW02/COMPM041 Web Economics Optimal bidding on the iPinYou dataset
+# COMPGW02 Web Economics - Real-Time-Bidding (RTB) on the iPinYou dataset
+This repository contains the source code, group and individual reports for the Group Project of "COMPGW02 Web Economics" course for UCL's MSc in Business Analytics (academic year 2017-2018).
+
 
 ## Group Members
 * Achilleas Sfakianakis
 * Akis Thomas
 * Dwane van der Sluis
 
-This github repo complements individual and group reports for UCL COMPGW02 Web Economics. (academic year 2017-2018). 
-
-The papers describes solutions to the online real-time advertising bidding problem, where the amount to
-bid for each advertising impression is optimised.
+## Description
+In this project, we worked on an online advertising problem. We helped advertisers to form a bidding strategy in order to place their ads online in a real-
+time bidding (RTB) system. RTB mechanism to buy and sell ads is the most significant evolution in recent years in display and mobile advertising.  
+RTB essentially facilitates buying an individual ad impression in real time, automatically triggered by a user's visit.
+Although other types of auctions, such as the first price auction, are also popular, RTB exchanges typically employ the second price auction model.
 
 ## Repository Structure
 
